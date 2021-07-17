@@ -32,6 +32,7 @@ bool generator::process(std::string_view line)
 {
   m_currentPosition.NextLine();
   Range range = {line.begin(), line.end()};
+  m_token_list.reserve(line.size());
 
   while (range)
   {
