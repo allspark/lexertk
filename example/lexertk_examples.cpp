@@ -21,6 +21,8 @@
 #include <lexertk/helper.hpp>
 #include <lexertk/lexertk.hpp>
 
+#include <fmt/format.h>
+
 void example01()
 {
   std::string expression = "(sin(x/pi)cos(2y) + 1) == (sin(x / pi) * cos(2 * y) + 1)";
@@ -137,16 +139,9 @@ void example05()
 
 struct function_definition
 {
-  std::string name;
-  std::string body;
+  std::string_view name;
+  std::string_view body;
   std::vector<std::string_view> var_list;
-
-  void clear()
-  {
-    name.clear();
-    body.clear();
-    var_list.clear();
-  }
 };
 
 struct parse_function_definition_impl : public lexertk::parser_helper
@@ -154,19 +149,19 @@ struct parse_function_definition_impl : public lexertk::parser_helper
   /*
       Structure: function <name> (v0,v1,...,vn) { expression }
    */
-  bool process(std::string& func_def, function_definition& fd)
+  std::tuple<bool, std::string_view> process(std::string_view func_def, function_definition& fd)
   {
     if (!init(func_def))
-      return false;
+      return {false, {}};
 
     if (!token_is(token_t::token_type::symbol, "function"))
-      return false;
+      return {false, {}};
 
     if (!token_is_then_assign(token_t::token_type::symbol, fd.name))
-      return false;
+      return {false, {}};
 
     if (!token_is(token_t::token_type::lbracket))
-      return false;
+      return {false, {}};
 
     if (!token_is(token_t::token_type::rbracket))
     {
@@ -176,13 +171,13 @@ struct parse_function_definition_impl : public lexertk::parser_helper
       {
         // (x,y,z,....w)
         if (!token_is_then_assign(token_t::token_type::symbol, var_list))
-          return false;
+          return {false, {}};
 
         if (token_is(token_t::token_type::rbracket))
           break;
 
         if (!token_is(token_t::token_type::comma))
-          return false;
+          return {false, {}};
       }
 
       var_list.swap(fd.var_list);
@@ -194,7 +189,7 @@ struct parse_function_definition_impl : public lexertk::parser_helper
     int bracket_stack = 0;
 
     if (!token_is(token_t::token_type::lcrlbracket, lexertk::parser_helper::token_advance_mode::hold))
-      return false;
+      return {false, {}};
 
     for (;;)
     {
@@ -210,28 +205,26 @@ struct parse_function_definition_impl : public lexertk::parser_helper
       else
       {
         if (m_current_token == m_token_list.end())
-          return false;
+          return {false, {}};
 
         next_token();
       }
     }
 
-    std::size_t size = body_end - body_begin + 1;
+    std::size_t size = body_end - body_begin;
 
-    fd.body = func_def.substr(body_begin, size);
+    fd.body = func_def.substr(body_begin - 1, size + 1);
 
     const std::size_t index = body_begin + size;
 
     if (index < func_def.size())
-      func_def = func_def.substr(index, func_def.size() - index);
+      return {true, func_def.substr(index)};
     else
-      func_def = "";
-
-    return true;
+      return {true, {}};
   }
 };
 
-bool parse_function_definition(std::string& func_def, function_definition& fd)
+std::tuple<bool, std::string_view> parse_function_definition(std::string_view func_def, function_definition& fd)
 {
   parse_function_definition_impl parser;
   return parser.process(func_def, fd);
@@ -239,26 +232,28 @@ bool parse_function_definition(std::string& func_def, function_definition& fd)
 
 void example06()
 {
-  std::string residual =
-      "function foo0( ) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
-      "function foo1(x) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
-      "function foo2(x,y) { if (x < '}}}') { x+y; x+=1;} else {x;} }        "
-      "function foo3(x,y,z) { if (x < '}}}') { x+y; x+=1;} else {x;} }      "
-      "function foo4(x,y,z,w) { if (x < '}}}') { x+y; w+=1;} else {x; w;} } "
-      "function foo5( ) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
-      "function foo6(x) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
-      "function foo7(x,y) { if (x < '}}}') { x+y; x+=1;} else {x;} }        "
-      "function foo8(x,y,z) { if (x < '}}}') { x+y; x+=1;} else {x;} }      "
-      "function foo9(x,y,z,w) { if (x < '}}}') { x+y; w+=1;} else {x; w;} } "
-      "function foo10(x,y,z,w) { if (x < '\\'}\\'}\\'}\\'') { x+y; w+=1;} else {x; w;} } "
-      "function foox( )       {  } "
-      "function fooy(x)       {  } "
-      "function fooz(x,y)     {  } "
-      "function foow(x,y,z)   {  } "
-      "function foou(x,y,z,w) {  } "
-      "{xxx + yyy + zzz {k / l} }  ";
+  constexpr static std::string_view f =
+      "function foo0( ) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+      "function foo1(x) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo2(x,y) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo3(x,y,z) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo4(x,y,z,w) { if (x < '}}}') { x+y; w+=1;} else {x; w;} }"
+        "function foo5( ) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo6(x) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo7(x,y) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo8(x,y,z) { if (x < '}}}') { x+y; x+=1;} else {x;} }"
+        "function foo9(x,y,z,w) { if (x < '}}}') { x+y; w+=1;} else {x; w;} }"
+        "function foo10(x,y,z,w) { if (x < '\\'}\\'}\\'}\\'') { x+y; w+=1;} else {x; w;} }"
+        "function foox( )       {  }"
+        "function fooy(x)       {  }"
+        "function fooz(x,y)     {  }"
+        "function foow(x,y,z)   {  }"
+        "function foou(x,y,z,w) {  }"
+        "{xxx + yyy + zzz {k / l} }";
 
   function_definition fd;
+
+  std::string_view residual{f};
 
   fmt::print("***** Example06 *****\n");
 
@@ -266,22 +261,16 @@ void example06()
 
   do
   {
-    if (parse_function_definition(residual, fd))
+    if (auto [success, next] = parse_function_definition(residual, fd); success)
     {
-      std::string vars;
-
-      for (std::size_t i = 0; i < fd.var_list.size(); ++i)
-      {
-        vars += std::string{fd.var_list[i]} + ((i < fd.var_list.size() - 1) ? "," : "");
-      }
-
       fmt::print("Function[{:02}]\n", function_count++);
       fmt::print("Name: {}\n", fd.name);
-      fmt::print("Vars: ({})\n", vars);
+      fmt::print("Vars: ({})\n", fmt::join(fd.var_list, ", "));
       fmt::print("Body: \n{}\n", fd.body);
       fmt::print("-----------------------------\n\n");
 
-      fd.clear();
+      fd = {};
+      residual = next;
     }
     else
       break;
@@ -289,7 +278,7 @@ void example06()
 
   if (!residual.empty())
   {
-    fmt::print("Residual: {}\n", residual);
+    fmt::print("Residual '{}'\n", residual);
   }
 
   fmt::print("*********************\n");

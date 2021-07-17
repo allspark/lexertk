@@ -885,7 +885,7 @@ public:
     return true;
   }
 
-  inline bool token_is(const token_t::token_type& ttype, const std::string& value, const token_advance_mode mode = token_advance_mode::advance)
+  inline bool token_is(const token_t::token_type& ttype, std::string_view value, const token_advance_mode mode = token_advance_mode::advance)
   {
     if (
         (current_token().get_type() != ttype) ||
@@ -899,7 +899,7 @@ public:
     return true;
   }
 
-  inline bool token_is_then_assign(const token_t::token_type& ttype, std::string& token, const token_advance_mode mode = token_advance_mode::advance)
+  inline bool token_is_then_assign(const token_t::token_type& ttype, std::string_view& token, const token_advance_mode mode = token_advance_mode::advance)
   {
     if (current_token().get_type() != ttype)
     {
@@ -930,10 +930,10 @@ public:
 
   inline bool peek_token_is(const token_t::token_type& ttype)
   {
-    return (current_token().get_type() == ttype);
+    return current_token().get_type() == ttype;
   }
 
-  inline bool peek_token_is(const std::string& s)
+  inline bool peek_token_is(std::string_view s)
   {
     return (details::imatch(current_token().get_value(), s));
   }
