@@ -55,8 +55,10 @@ public:
 
   struct Position
   {
-    std::size_t line{std::numeric_limits<std::size_t>::max()};
-    std::size_t column{std::numeric_limits<std::size_t>::max()};
+    using value_type = std::uint16_t;
+
+    value_type line{std::numeric_limits<value_type>::max()};
+    value_type column{std::numeric_limits<value_type>::max()};
 
     inline Position IncrementColumn(iterator begin, iterator end) noexcept;
     inline void NextLine() noexcept;
@@ -79,9 +81,9 @@ public:
   inline void set_value(std::string_view) noexcept;
 
 private:
+  Position m_position{};
   token_type m_type{token_type::none};
   std::string_view m_value;
-  Position m_position{};
 };
 
 inline std::string_view to_string(token::token_type t) noexcept;
