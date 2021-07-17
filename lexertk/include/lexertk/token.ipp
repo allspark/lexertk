@@ -16,11 +16,18 @@ token::Position token::Position::IncrementColumn(iterator begin, iterator end) n
 
   return tmp;
 }
+
 void token::Position::NextLine() noexcept
 {
   ++line;
-  column = 0;
+  column = 1;
 }
+
+void token::Position::NextColumn() noexcept
+{
+  ++column;
+}
+
 token::token(token_type tt, iterator begin, iterator end, Position position) noexcept
   : m_type{tt}
   , m_value{begin, std::distance(begin, end)}

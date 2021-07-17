@@ -60,6 +60,7 @@ public:
 
     inline Position IncrementColumn(iterator begin, iterator end) noexcept;
     inline void NextLine() noexcept;
+    inline void NextColumn() noexcept;
   };
 
   token() = default;

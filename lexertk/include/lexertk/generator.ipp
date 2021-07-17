@@ -92,6 +92,10 @@ generator::Range generator::skip_whitespace(Range range)
     {
       m_currentPosition.NextLine();
     }
+    else
+    {
+      m_currentPosition.NextColumn();
+    }
     ++range;
   }
   return range;
@@ -360,6 +364,7 @@ generator::Range generator::scan_number(Range range)
 generator::Range generator::scan_string(Range range)
 {
   auto begin = range.begin + 1;
+  m_currentPosition.NextColumn();
   if (std::distance(range.begin, range.end) < 2)
   {
     m_token_list.emplace_back(token::token_type::err_string, range.begin, range.end, m_currentPosition.IncrementColumn(range.begin, range.end));
@@ -408,6 +413,7 @@ generator::Range generator::scan_string(Range range)
 
   m_token_list.emplace_back(token::token_type::string, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
   ++range;
+  m_currentPosition.NextColumn();
 
   return range;
 }
