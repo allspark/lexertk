@@ -19,7 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "lexertk.hpp"
+#include <lexertk/lexertk.hpp>
+#include <lexertk/helper.hpp>
 
 
 void example01()
