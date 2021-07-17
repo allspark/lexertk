@@ -16,7 +16,7 @@ class generator
 {
 public:
   using token_list_t = std::vector<token>;
-  using token_list_itr_t = std::vector<token>::const_iterator;
+  using token_list_itr_t = typename token_list_t::const_iterator;
   using iterator = std::string_view::const_iterator;
   struct Range
   {
