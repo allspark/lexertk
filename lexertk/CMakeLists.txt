@@ -4,9 +4,11 @@ add_library(lexertk::lexertk ALIAS lexertk)
 set(headers
         include/lexertk/detail.hpp
         include/lexertk/generator.hpp
+        include/lexertk/generator.ipp
         include/lexertk/helper.hpp
         include/lexertk/lexertk.hpp
         include/lexertk/token.hpp
+        include/lexertk/token.ipp
         )
 
 foreach (header_file ${headers})
@@ -22,6 +24,7 @@ target_sources(lexertk
 
 set_target_properties(lexertk PROPERTIES PUBLIC_HEADER "${absolute_header_files}")
 
+target_link_libraries(lexertk INTERFACE fmt::fmt)
 
 target_include_directories(lexertk INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>

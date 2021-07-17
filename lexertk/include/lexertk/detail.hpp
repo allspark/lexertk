@@ -87,7 +87,7 @@ inline bool imatch(const char c1, const char c2)
   return std::tolower(c1) == std::tolower(c2);
 }
 
-inline bool imatch(const std::string& s1, const std::string& s2)
+inline bool imatch(std::string_view s1, std::string_view s2)
 {
   if (s1.size() == s2.size())
   {
@@ -107,7 +107,9 @@ inline bool imatch(const std::string& s1, const std::string& s2)
 
 struct ilesscompare
 {
-  inline bool operator()(const std::string& s1, const std::string& s2) const
+  using is_transparent = void;
+
+  inline bool operator()(std::string_view s1, std::string_view s2) const
   {
     const std::size_t length = std::min(s1.size(), s2.size());
 

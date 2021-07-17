@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(BUILD_EXAMPLES "Enable example" ON)
 
+find_package(fmt REQUIRED)
+
 include(GNUInstallDirs)
 
 add_subdirectory(lexertk)

@@ -14,230 +14,232 @@
  *****************************************************************
 */
 
-
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include <lexertk/lexertk.hpp>
 #include <lexertk/helper.hpp>
-
+#include <lexertk/lexertk.hpp>
 
 void example01()
 {
-   std::string expression = "(sin(x/pi)cos(2y) + 1) == (sin(x / pi) * cos(2 * y) + 1)";
+  std::string expression = "(sin(x/pi)cos(2y) + 1) == (sin(x / pi) * cos(2 * y) + 1)";
 
-   lexertk::generator generator;
+  lexertk::generator generator;
 
-   if (!generator.process(expression))
-   {
-      std::cout << "Example01 - Failed to lex: " << expression << std::endl;
-      return;
-   }
+  if (!generator.process(expression))
+  {
+    fmt::print("Example01 - Failed to lex: {}\n", expression);
+    return;
+  }
 
-   std::cout << "***** Example01 *****" << std::endl;
-   lexertk::helper::dump(generator);
-   std::cout << "*********************" << std::endl;
-
+  fmt::print("***** Example01 *****\n");
+  lexertk::dump(generator.get_token_list());
+  fmt::print("*********************\n");
 }
 
 void example02()
 {
-   std::string expression = "(sin(x/pi)123.456cos(2y) + 1) == (sin(x / pi) * 123.456 * cos(2 * y) + 1)";
+  std::string expression = "(sin(x/pi)123.456cos(2y) + 1) == (sin(x / pi) * 123.456 * cos(2 * y) + 1)";
 
-   lexertk::generator generator;
+  lexertk::generator generator;
 
-   if (!generator.process(expression))
-   {
-      std::cout << "Example02 - Failed to lex: " << expression << std::endl;
-      return;
-   }
+  if (!generator.process(expression))
+  {
+    fmt::print("Example02 - Failed to lex: {}\n", expression);
+    return;
+  }
 
-   lexertk::helper::commutative_inserter ci;
-   ci.process(generator);
+  lexertk::helper::commutative_inserter ci;
+  auto list = std::move(generator).get_token_list();
+  ci.process(list);
 
-   std::cout << "***** Example02 *****" << std::endl;
-   lexertk::helper::dump(generator);
-   std::cout << "*********************" << std::endl;
+  fmt::print("***** Example02 *****\n");
+  lexertk::dump(list);
+  fmt::print("*********************\n");
 }
 
 void example03()
 {
-   std::string expression = "((1.1 > = 2.2) ! = (3.3 < = 4.4)) < > [x_x : = y_y]";
+  std::string expression = "((1.1 > = 2.2) ! = (3.3 < = 4.4)) < > [x_x : = y_y]";
 
-   lexertk::generator generator;
+  lexertk::generator generator;
 
-   if (!generator.process(expression))
-   {
-      std::cout << "Example03 - Failed to lex: " << expression << std::endl;
-      return;
-   }
+  if (!generator.process(expression))
+  {
+    fmt::print("Example03 - Failed to lex: {}\n", expression);
+    return;
+  }
 
-   lexertk::helper::operator_joiner oj;
-   oj.process(generator);
+  lexertk::helper::operator_joiner oj;
+  auto list = std::move(generator).get_token_list();
+  oj.process(list);
 
-   std::cout << "***** Example03 *****" << std::endl;
-   lexertk::helper::dump(generator);
-   std::cout << "*********************" << std::endl;
+  fmt::print("***** Example03 *****\n");
+  lexertk::dump(list);
+  fmt::print("*********************\n");
 }
 
 void example04()
 {
-   std::string expression = "{a+(b-[c*(e/{f+g}-h)*i]%[j+(k-{l*m}/n)+o]-p)*q}";
+  std::string expression = "{a+(b-[c*(e/{f+g}-h)*i]%[j+(k-{l*m}/n)+o]-p)*q}";
 
-   lexertk::generator generator;
+  lexertk::generator generator;
 
-   if (!generator.process(expression))
-   {
-      std::cout << "Example04 - Failed to lex: " << expression << std::endl;
-      return;
-   }
+  if (!generator.process(expression))
+  {
+    fmt::print("Example04 - Failed to lex: {}\n", expression);
+    return;
+  }
 
-   lexertk::helper::bracket_checker bc;
-   bc.process(generator);
+  lexertk::helper::bracket_checker bc;
+  auto list = std::move(generator).get_token_list();
+  bc.process(list);
 
-   if (!bc.result())
-   {
-      std::cout << "Example04 - Failed Bracket Checker!" << std::endl;
-      return;
-   }
+  if (!bc.result())
+  {
+    fmt::print("Example04 - Failed Bracket Checker!\n");
+    return;
+  }
 
-   std::cout << "***** Example04 *****" << std::endl;
-   lexertk::helper::dump(generator);
-   std::cout << "*********************" << std::endl;
+  fmt::print("***** Example04 *****\n");
+  lexertk::dump(list);
+  fmt::print("*********************\n");
 }
 
 void example05()
 {
-   std::string expression = "(sin(x/pi) * cos(2y) + 1)";
+  std::string expression = "(sin(x/pi) * cos(2y) + 1)";
 
-   lexertk::generator generator;
+  lexertk::generator generator;
 
-   if (!generator.process(expression))
-   {
-      std::cout << "Example05 - Failed to lex: " << expression << std::endl;
-      return;
-   }
+  if (!generator.process(expression))
+  {
+    fmt::print("Example05 - Failed to lex: {}\n", expression);
+    return;
+  }
 
-   lexertk::helper::symbol_replacer sr;
+  lexertk::helper::symbol_replacer sr;
 
-   sr.add_replace("sin","Deg2RadSine");
-   sr.add_replace("cos","Deg2RadCosine");
+  sr.add_replace("sin", "Deg2RadSine");
+  sr.add_replace("cos", "Deg2RadCosine");
 
-   std::size_t change_count = sr.process(generator);
+  auto list = std::move(generator).get_token_list();
 
-   std::cout << "Example05 - Number of changes: " << change_count << std::endl;
+  std::size_t change_count = sr.process(list);
 
-   std::cout << "***** Example05 *****" << std::endl;
-   lexertk::helper::dump(generator);
-   std::cout << "*********************" << std::endl;
+  fmt::print("Example05 - Number of changes: {}\n", change_count);
+
+  fmt::print("***** Example05 *****\n");
+  lexertk::dump(list);
+  fmt::print("*********************\n");
 }
 
 struct function_definition
 {
-   std::string name;
-   std::string body;
-   std::vector<std::string> var_list;
+  std::string name;
+  std::string body;
+  std::vector<std::string_view> var_list;
 
-   void clear()
-   {
-      name    .clear();
-      body    .clear();
-      var_list.clear();
-   }
+  void clear()
+  {
+    name.clear();
+    body.clear();
+    var_list.clear();
+  }
 };
 
 struct parse_function_definition_impl : public lexertk::parser_helper
 {
-   /*
+  /*
       Structure: function <name> (v0,v1,...,vn) { expression }
    */
-   bool process(std::string& func_def, function_definition& fd)
-   {
-      if (!init(func_def))
-         return false;
+  bool process(std::string& func_def, function_definition& fd)
+  {
+    if (!init(func_def))
+      return false;
 
-      if (!token_is(token_t::e_symbol,"function"))
-         return false;
+    if (!token_is(token_t::token_type::symbol, "function"))
+      return false;
 
-      if (!token_is_then_assign(token_t::e_symbol,fd.name))
-         return false;
+    if (!token_is_then_assign(token_t::token_type::symbol, fd.name))
+      return false;
 
-      if (!token_is(token_t::e_lbracket))
-         return false;
+    if (!token_is(token_t::token_type::lbracket))
+      return false;
 
-      if (!token_is(token_t::e_rbracket))
+    if (!token_is(token_t::token_type::rbracket))
+    {
+      std::vector<std::string_view> var_list;
+
+      for (;;)
       {
-         std::vector<std::string> var_list;
+        // (x,y,z,....w)
+        if (!token_is_then_assign(token_t::token_type::symbol, var_list))
+          return false;
 
-         for ( ; ; )
-         {
-            // (x,y,z,....w)
-            if (!token_is_then_assign(token_t::e_symbol,var_list))
-               return false;
+        if (token_is(token_t::token_type::rbracket))
+          break;
 
-            if (token_is(token_t::e_rbracket))
-               break;
-
-            if (!token_is(token_t::e_comma))
-               return false;
-         }
-
-         var_list.swap(fd.var_list);
+        if (!token_is(token_t::token_type::comma))
+          return false;
       }
 
-      std::size_t body_begin = current_token().position;
-      std::size_t body_end   = current_token().position;
+      var_list.swap(fd.var_list);
+    }
 
-      int bracket_stack = 0;
+    std::size_t body_begin = current_token().get_position().column;
+    std::size_t body_end = current_token().get_position().column;
 
-      if (!token_is(token_t::e_lcrlbracket,e_hold))
-         return false;
+    int bracket_stack = 0;
 
-      for ( ; ; )
+    if (!token_is(token_t::token_type::lcrlbracket, lexertk::parser_helper::token_advance_mode::hold))
+      return false;
+
+    for (;;)
+    {
+      body_end = current_token().get_position().column;
+
+      if (token_is(token_t::token_type::lcrlbracket))
+        bracket_stack++;
+      else if (token_is(token_t::token_type::rcrlbracket))
       {
-         body_end = current_token().position;
-
-         if (token_is(token_t::e_lcrlbracket))
-            bracket_stack++;
-         else if (token_is(token_t::e_rcrlbracket))
-         {
-            if (0 == --bracket_stack)
-               break;
-         }
-         else
-         {
-            if (lexer().finished())
-               return false;
-
-            next_token();
-         }
+        if (0 == --bracket_stack)
+          break;
       }
-
-      std::size_t size = body_end - body_begin + 1;
-
-      fd.body = func_def.substr(body_begin,size);
-
-      const std::size_t index = body_begin + size;
-
-      if (index < func_def.size())
-         func_def = func_def.substr(index,func_def.size() - index);
       else
-         func_def = "";
+      {
+        if (m_current_token == m_token_list.end())
+          return false;
 
-      return true;
-   }
+        next_token();
+      }
+    }
+
+    std::size_t size = body_end - body_begin + 1;
+
+    fd.body = func_def.substr(body_begin, size);
+
+    const std::size_t index = body_begin + size;
+
+    if (index < func_def.size())
+      func_def = func_def.substr(index, func_def.size() - index);
+    else
+      func_def = "";
+
+    return true;
+  }
 };
 
 bool parse_function_definition(std::string& func_def, function_definition& fd)
 {
-   parse_function_definition_impl parser;
-   return parser.process(func_def,fd);
+  parse_function_definition_impl parser;
+  return parser.process(func_def, fd);
 }
 
 void example06()
 {
-   const std::string f =
+  std::string residual =
       "function foo0( ) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
       "function foo1(x) { if (x < '}}}') { x+y; x+=1;} else {x;} }          "
       "function foo2(x,y) { if (x < '}}}') { x+y; x+=1;} else {x;} }        "
@@ -256,54 +258,51 @@ void example06()
       "function foou(x,y,z,w) {  } "
       "{xxx + yyy + zzz {k / l} }  ";
 
-   function_definition fd;
+  function_definition fd;
 
-   std::string residual = f;
+  fmt::print("***** Example06 *****\n");
 
-   std::cout << "***** Example06 *****" << std::endl;
+  int function_count = 0;
 
-   int function_count = 0;
+  do
+  {
+    if (parse_function_definition(residual, fd))
+    {
+      std::string vars;
 
-   do
-   {
-      if (parse_function_definition(residual,fd))
+      for (std::size_t i = 0; i < fd.var_list.size(); ++i)
       {
-         std::string vars;
-
-         for (std::size_t i = 0; i < fd.var_list.size(); ++i)
-         {
-            vars += fd.var_list[i] + ((i < fd.var_list.size() - 1) ? "," : "");
-         }
-
-         printf("Function[%02d]\n",function_count++);
-         printf("Name: %s\n"      ,fd.name.c_str() );
-         printf("Vars: (%s)\n"    ,vars.c_str()    );
-         printf("Body: \n%s\n"    ,fd.body.c_str() );
-         printf("-----------------------------\n\n");
-
-         fd.clear();
+        vars += std::string{fd.var_list[i]} + ((i < fd.var_list.size() - 1) ? "," : "");
       }
-      else
-         break;
-   }
-   while (!residual.empty());
 
-   if (!residual.empty())
-   {
-      printf("Residual: %s\n",residual.c_str());
-   }
+      fmt::print("Function[{:02}]\n", function_count++);
+      fmt::print("Name: {}\n", fd.name);
+      fmt::print("Vars: ({})\n", vars);
+      fmt::print("Body: \n{}\n", fd.body);
+      fmt::print("-----------------------------\n\n");
 
-   std::cout << "*********************" << std::endl;
+      fd.clear();
+    }
+    else
+      break;
+  } while (!residual.empty());
+
+  if (!residual.empty())
+  {
+    fmt::print("Residual: {}\n", residual);
+  }
+
+  fmt::print("*********************\n");
 }
 
 int main()
 {
-   example01();
-   example02();
-   example03();
-   example04();
-   example05();
-   example06();
+  example01();
+  example02();
+  example03();
+  example04();
+  example05();
+  example06();
 
-   return 0;
+  return 0;
 }

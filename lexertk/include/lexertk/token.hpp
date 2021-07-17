@@ -5,167 +5,87 @@
 #ifndef LEXERTK_TOKEN_HPP
 #define LEXERTK_TOKEN_HPP
 
-#include <string_view>
 #include <limits>
+#include <string_view>
 
 namespace lexertk
 {
-struct token
+class token
 {
+public:
+  using iterator = std::string_view::const_iterator;
 
-  enum token_type
+  enum struct token_type : unsigned char
   {
-    e_none        =   0, e_error       =   1, e_err_symbol  =   2,
-    e_err_number  =   3, e_err_string  =   4, e_err_sfunc   =   5,
-    e_eof         =   6, e_number      =   7, e_symbol      =   8,
-    e_string      =   9, e_assign      =  10, e_shr         =  11,
-    e_shl         =  12, e_lte         =  13, e_ne          =  14,
-    e_gte         =  15, e_lt          = '<', e_gt          = '>',
-    e_eq          = '=', e_rbracket    = ')', e_lbracket    = '(',
-    e_rsqrbracket = ']', e_lsqrbracket = '[', e_rcrlbracket = '}',
-    e_lcrlbracket = '{', e_comma       = ',', e_add         = '+',
-    e_sub         = '-', e_div         = '/', e_mul         = '*',
-    e_mod         = '%', e_pow         = '^', e_colon       = ':'
+    none = 0,
+    error = 1,
+    err_symbol = 2,
+    err_number = 3,
+    err_string = 4,
+    err_sfunc = 5,
+    eof = 6,
+    number = 7,
+    symbol = 8,
+    string = 9,
+    assign = 10,
+    shr = 11,
+    shl = 12,
+    lte = 13,
+    ne = 14,
+    gte = 15,
+    eoe = 16,
+    lt = '<',
+    gt = '>',
+    eq = '=',
+    rbracket = ')',
+    lbracket = '(',
+    rsqrbracket = ']',
+    lsqrbracket = '[',
+    rcrlbracket = '}',
+    lcrlbracket = '{',
+    comma = ',',
+    add = '+',
+    sub = '-',
+    div = '/',
+    mul = '*',
+    mod = '%',
+    pow = '^',
+    colon = ':'
   };
 
-  token()
-    : type(e_none),
-    value(""),
-    position(std::numeric_limits<std::size_t>::max())
-  {}
-
-  void clear()
+  struct Position
   {
-    type     = e_none;
-    value    = "";
-    position = std::numeric_limits<std::size_t>::max();
-  }
+    std::size_t line{std::numeric_limits<std::size_t>::max()};
+    std::size_t column{std::numeric_limits<std::size_t>::max()};
 
-  template <typename Iterator>
-  inline token& set_operator(const token_type tt, const Iterator begin, const Iterator end, const Iterator base_begin = Iterator(0))
-  {
-    type = tt;
-    value.assign(begin,end);
-    if (base_begin)
-      position = std::distance(base_begin,begin);
-    return *this;
-  }
+    inline Position IncrementColumn(iterator begin, iterator end) noexcept;
+    inline void NextLine() noexcept;
+  };
 
-  template <typename Iterator>
-  inline token& set_symbol(const Iterator begin, const Iterator end, const Iterator base_begin = Iterator(0))
-  {
-    type = e_symbol;
-    value.assign(begin,end);
-    if (base_begin)
-      position = std::distance(base_begin,begin);
-    return *this;
-  }
+  token() = default;
 
-  template <typename Iterator>
-  inline token& set_numeric(const Iterator begin, const Iterator end, const Iterator base_begin = Iterator(0))
-  {
-    type = e_number;
-    value.assign(begin,end);
-    if (base_begin)
-      position = std::distance(base_begin,begin);
-    return *this;
-  }
+  inline token(token_type tt, iterator begin, iterator end, Position position) noexcept;
+  inline token(token_type tt, Position position) noexcept;
+  inline token(token_type tt, std::string_view value, Position position) noexcept;
 
-  template <typename Iterator>
-  inline token& set_string(const Iterator begin, const Iterator end, const Iterator base_begin = Iterator(0))
-  {
-    type = e_string;
-    value.assign(begin,end);
-    if (base_begin)
-      position = std::distance(base_begin,begin);
-    return *this;
-  }
+  inline bool is_error() const noexcept;
 
-  inline token& set_string(const std::string& s, const std::size_t p)
-  {
-    type     = e_string;
-    value    = s;
-    position = p;
-    return *this;
-  }
+  inline token_type get_type() const noexcept;
+  inline std::string_view get_value() const noexcept;
+  inline Position const& get_position() const noexcept;
 
-  template <typename Iterator>
-  inline token& set_error(const token_type et, const Iterator begin, const Iterator end, const Iterator base_begin = Iterator(0))
-  {
-    if (
-      (e_error      == et) ||
-      (e_err_symbol == et) ||
-      (e_err_number == et) ||
-      (e_err_string == et)
-      )
-    {
-      type = e_error;
-    }
-    else
-      type = e_error;
+  inline void set_type(token_type) noexcept;
+  inline void set_value(std::string_view) noexcept;
 
-    value.assign(begin,end);
-
-    if (base_begin)
-      position = std::distance(base_begin,begin);
-
-    return *this;
-  }
-
-  static inline std::string to_str(token_type t)
-  {
-    switch (t)
-    {
-      case e_none        : return "NONE";
-      case e_error       : return "ERROR";
-      case e_err_symbol  : return "ERROR_SYMBOL";
-      case e_err_number  : return "ERROR_NUMBER";
-      case e_err_string  : return "ERROR_STRING";
-      case e_eof         : return "EOF";
-      case e_number      : return "NUMBER";
-      case e_symbol      : return "SYMBOL";
-      case e_string      : return "STRING";
-      case e_assign      : return ":=";
-      case e_shr         : return ">>";
-      case e_shl         : return "<<";
-      case e_lte         : return "<=";
-      case e_ne          : return "!=";
-      case e_gte         : return ">=";
-      case e_lt          : return "<";
-      case e_gt          : return ">";
-      case e_eq          : return "=";
-      case e_rbracket    : return ")";
-      case e_lbracket    : return "(";
-      case e_rsqrbracket : return "]";
-      case e_lsqrbracket : return "[";
-      case e_rcrlbracket : return "}";
-      case e_lcrlbracket : return "{";
-      case e_comma       : return ",";
-      case e_add         : return "+";
-      case e_sub         : return "-";
-      case e_div         : return "/";
-      case e_mul         : return "*";
-      case e_mod         : return "%";
-      case e_pow         : return "^";
-      case e_colon       : return ":";
-      default            : return "UNKNOWN";
-    }
-  }
-
-  inline bool is_error() const
-  {
-    return (
-      (e_error      == type) ||
-      (e_err_symbol == type) ||
-      (e_err_number == type) ||
-      (e_err_string == type)
-    );
-  }
-
-  token_type type;
-  std::string value;
-  std::size_t position;
+private:
+  token_type m_type{token_type::none};
+  std::string_view m_value;
+  Position m_position{};
 };
-}
+
+inline std::string_view to_string(token::token_type t) noexcept;
+}  // namespace lexertk
+
+#include "token.ipp"
 
 #endif  //LEXERTK_TOKEN_HPP
