@@ -12,6 +12,7 @@ include(GNUInstallDirs)
 add_subdirectory(lexertk)
 
 if (BUILD_EXAMPLES)
+    find_package(benchmark REQUIRED)
     add_subdirectory(example)
 endif ()
 
