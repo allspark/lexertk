@@ -37,26 +37,17 @@ public:
 
   inline bool process(std::string_view line);
 
-  inline bool empty() const noexcept;
-
-  inline std::size_t size() const noexcept;
-
-  inline token const& operator[](const std::size_t& index) const;
-
-  inline token_list_itr_t begin() const noexcept;
-  inline token_list_itr_t end() const noexcept;
-
   inline token_list_t const& get_token_list() const & noexcept;
   inline token_list_t get_token_list() && noexcept;
 
 private:
-  Range skip_whitespace(Range);
-  Range skip_comments(Range);
-  Range scan_token(Range);
-  Range scan_operator(Range);
-  Range scan_symbol(Range);
-  Range scan_number(Range);
-  Range scan_string(Range);
+  Range skip_whitespace(Range) noexcept;
+  Range skip_comments(Range) noexcept;
+  Range scan_token(Range) noexcept;
+  Range scan_operator(Range) noexcept;
+  Range scan_symbol(Range) noexcept;
+  Range scan_number(Range) noexcept;
+  Range scan_string(Range) noexcept;
 
 private:
   token_list_t m_token_list;

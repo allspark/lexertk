@@ -63,7 +63,7 @@ std::string_view token::get_value() const noexcept
   return m_value;
 }
 
-token::Position const& token::get_position() const noexcept
+token::Position token::get_position() const noexcept
 {
   return m_position;
 }
@@ -148,9 +148,10 @@ std::string_view to_string(token::token_type t) noexcept
       return "^";
     case token::token_type::colon:
       return ":";
-    default:
-      return "UNKNOWN";
+    case token::token_type::err_sfunc:
+      return "ERROR_SFUNC";
   }
+  return "UNKNOWN";
 }
 }  // namespace lexertk
 

@@ -47,34 +47,6 @@ bool generator::process(std::string_view line)
   return true;
 }
 
-bool generator::empty() const noexcept
-{
-  return m_token_list.empty();
-}
-
-std::size_t generator::size() const noexcept
-{
-  return m_token_list.size();
-}
-
-token const& generator::operator[](const std::size_t& index) const
-{
-  if (index < m_token_list.size())
-    return m_token_list[index];
-  else
-    return m_eof_token;
-}
-
-generator::token_list_itr_t generator::begin() const noexcept
-{
-  return m_token_list.begin();
-}
-
-generator::token_list_itr_t generator::end() const noexcept
-{
-  return m_token_list.end();
-}
-
 generator::token_list_t const& generator::get_token_list() const & noexcept
 {
   return m_token_list;
@@ -85,7 +57,7 @@ generator::token_list_t generator::get_token_list() && noexcept
   return std::move(m_token_list);
 }
 
-generator::Range generator::skip_whitespace(Range range)
+generator::Range generator::skip_whitespace(Range range) noexcept
 {
   while (range && details::is_whitespace(*range.begin))
   {
@@ -116,7 +88,7 @@ enum struct CommentIncrement
   ONE = 1,
   TWO = 2
 };
-std::tuple<CommentMode, CommentIncrement> comment_start(const char c0, const char c1)
+std::tuple<CommentMode, CommentIncrement> comment_start(const char c0, const char c1) noexcept
 {
   if ('#' == c0)
   {
@@ -136,13 +108,13 @@ std::tuple<CommentMode, CommentIncrement> comment_start(const char c0, const cha
   return {CommentMode::NONE, CommentIncrement::NONE};
 }
 
-bool comment_end(const char c0, const char c1, CommentMode mode)
+bool comment_end(const char c0, const char c1, CommentMode mode) noexcept
 {
   return ((mode == CommentMode::COMMENT_START) && ('\n' == c0)) || ((mode == CommentMode::STAR) && ('*' == c0) && ('/' == c1));
 }
 }  // namespace
 
-generator::Range generator::skip_comments(Range range)
+generator::Range generator::skip_comments(Range range) noexcept
 {
   //The following comment styles are supported:
   // 1. // .... \n
@@ -162,6 +134,14 @@ generator::Range generator::skip_comments(Range range)
 
   while (range && !comment_end(*range.begin, *(range.begin + 1), mode))
   {
+    if (*range.begin == '\n')
+    {
+      m_currentPosition.NextLine();
+    }
+    else
+    {
+      m_currentPosition.NextColumn();
+    }
     ++range;
   }
 
@@ -175,7 +155,7 @@ generator::Range generator::skip_comments(Range range)
   return range;
 }
 
-generator::Range generator::scan_token(Range range)
+generator::Range generator::scan_token(Range range) noexcept
 {
   range = skip_whitespace(range);
   range = skip_comments(range);
@@ -209,7 +189,7 @@ generator::Range generator::scan_token(Range range)
   return range;
 }
 
-generator::Range generator::scan_operator(Range range)
+generator::Range generator::scan_operator(Range range) noexcept
 {
   if (range.begin + 1 != range.end)
   {
@@ -263,7 +243,7 @@ generator::Range generator::scan_operator(Range range)
   return ++range;
 }
 
-generator::Range generator::scan_symbol(Range range)
+generator::Range generator::scan_symbol(Range range) noexcept
 {
   auto begin = range.begin;
   while (range && (details::is_letter_or_digit(*range.begin) || ((*range.begin) == '_')))
@@ -275,7 +255,7 @@ generator::Range generator::scan_symbol(Range range)
   return range;
 }
 
-generator::Range generator::scan_number(Range range)
+generator::Range generator::scan_number(Range range) noexcept
 {
   /*
        Attempt to match a valid numeric value in one of the following formats:
@@ -362,7 +342,7 @@ generator::Range generator::scan_number(Range range)
   return range;
 }
 
-generator::Range generator::scan_string(Range range)
+generator::Range generator::scan_string(Range range) noexcept
 {
   auto begin = range.begin + 1;
   m_currentPosition.NextColumn();

@@ -37,7 +37,7 @@ public:
 class token_scanner : public helper_interface
 {
 public:
-  explicit token_scanner(const std::size_t& stride)
+  explicit token_scanner(const std::size_t stride)
     : stride_(stride)
   {
     if (stride > 4)
@@ -52,7 +52,6 @@ public:
     {
       for (std::size_t i = 0; i < (list.size() - stride_ + 1); ++i)
       {
-        token t;
         switch (stride_)
         {
           case 1:
@@ -368,7 +367,6 @@ class bracket_checker : public token_scanner
 public:
   bracket_checker()
     : token_scanner(1)
-    , state_(true)
   {
   }
 
@@ -431,7 +429,7 @@ public:
   }
 
 private:
-  bool state_;
+  bool state_{true};
   std::stack<char> stack_;
   lexertk::token error_token_;
 };
@@ -546,10 +544,10 @@ public:
 
     if (invalid_bracket_check(t0.get_type(), t1.get_type()))
     {
-      error_list_.push_back(std::make_pair(t0, t1));
+      error_list_.emplace_back(t0, t1);
     }
     else if (invalid_comb_.find(p) != invalid_comb_.end())
-      error_list_.push_back(std::make_pair(t0, t1));
+      error_list_.emplace_back(t0, t1);
 
     return true;
   }
@@ -567,8 +565,7 @@ public:
     }
     else
     {
-      static const lexertk::token error_token;
-      return std::make_pair(error_token, error_token);
+      return {};
     }
   }
 
@@ -580,7 +577,7 @@ public:
 private:
   void add_invalid(lexertk::token::token_type base, lexertk::token::token_type t)
   {
-    invalid_comb_.insert(std::make_pair(base, t));
+    invalid_comb_.emplace(base, t);
   }
 
   void add_invalid_set1(lexertk::token::token_type t)
@@ -680,7 +677,7 @@ private:
   }
 
   set_t invalid_comb_;
-  std::deque<std::pair<lexertk::token, lexertk::token>> error_list_;
+  std::vector<std::pair<lexertk::token, lexertk::token>> error_list_;
 };
 
 struct helper_assembly
@@ -735,18 +732,18 @@ struct helper_assembly
 
   inline bool run_modifiers(lexertk::generator::token_list_t& list)
   {
-    error_token_modifier = reinterpret_cast<lexertk::token_modifier*>(0);
+    error_token_modifier = nullptr;
 
     for (std::size_t i = 0; i < token_modifier_list.size(); ++i)
     {
-      lexertk::token_modifier& modifier = (*token_modifier_list[i]);
+      lexertk::token_modifier& modifier = *token_modifier_list[i];
 
       modifier.reset();
       modifier.process(list);
 
       if (!modifier.result())
       {
-        error_token_modifier = token_modifier_list[i];
+        error_token_modifier = &modifier;
 
         return false;
       }
@@ -757,18 +754,18 @@ struct helper_assembly
 
   inline bool run_joiners(lexertk::generator::token_list_t& list)
   {
-    error_token_joiner = reinterpret_cast<lexertk::token_joiner*>(0);
+    error_token_joiner = nullptr;
 
     for (std::size_t i = 0; i < token_joiner_list.size(); ++i)
     {
-      lexertk::token_joiner& joiner = (*token_joiner_list[i]);
+      lexertk::token_joiner& joiner = *token_joiner_list[i];
 
       joiner.reset();
       joiner.process(list);
 
       if (!joiner.result())
       {
-        error_token_joiner = token_joiner_list[i];
+        error_token_joiner = &joiner;
 
         return false;
       }
@@ -779,18 +776,18 @@ struct helper_assembly
 
   inline bool run_inserters(lexertk::generator::token_list_t& list)
   {
-    error_token_inserter = reinterpret_cast<lexertk::token_inserter*>(0);
+    error_token_inserter = nullptr;
 
     for (std::size_t i = 0; i < token_inserter_list.size(); ++i)
     {
-      lexertk::token_inserter& inserter = (*token_inserter_list[i]);
+      lexertk::token_inserter& inserter = *token_inserter_list[i];
 
       inserter.reset();
       inserter.process(list);
 
       if (!inserter.result())
       {
-        error_token_inserter = token_inserter_list[i];
+        error_token_inserter = &inserter;
 
         return false;
       }
@@ -801,18 +798,18 @@ struct helper_assembly
 
   inline bool run_scanners(lexertk::generator::token_list_t& list)
   {
-    error_token_scanner = reinterpret_cast<lexertk::token_scanner*>(0);
+    error_token_scanner = nullptr;
 
     for (std::size_t i = 0; i < token_scanner_list.size(); ++i)
     {
-      lexertk::token_scanner& scanner = (*token_scanner_list[i]);
+      lexertk::token_scanner& scanner = *token_scanner_list[i];
 
       scanner.reset();
       scanner.process(list);
 
       if (!scanner.result())
       {
-        error_token_scanner = token_scanner_list[i];
+        error_token_scanner = &scanner;
 
         return false;
       }
@@ -821,15 +818,15 @@ struct helper_assembly
     return true;
   }
 
-  std::deque<lexertk::token_scanner*> token_scanner_list;
-  std::deque<lexertk::token_modifier*> token_modifier_list;
-  std::deque<lexertk::token_joiner*> token_joiner_list;
-  std::deque<lexertk::token_inserter*> token_inserter_list;
+  std::vector<lexertk::token_scanner*> token_scanner_list;
+  std::vector<lexertk::token_modifier*> token_modifier_list;
+  std::vector<lexertk::token_joiner*> token_joiner_list;
+  std::vector<lexertk::token_inserter*> token_inserter_list;
 
-  lexertk::token_scanner* error_token_scanner;
-  lexertk::token_modifier* error_token_modifier;
-  lexertk::token_joiner* error_token_joiner;
-  lexertk::token_inserter* error_token_inserter;
+  lexertk::token_scanner* error_token_scanner{nullptr};
+  lexertk::token_modifier* error_token_modifier{nullptr};
+  lexertk::token_joiner* error_token_joiner{nullptr};
+  lexertk::token_inserter* error_token_inserter{nullptr};
 };
 }  // namespace helper
 class parser_helper

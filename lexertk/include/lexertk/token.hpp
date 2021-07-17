@@ -75,7 +75,7 @@ public:
 
   inline token_type get_type() const noexcept;
   inline std::string_view get_value() const noexcept;
-  inline Position const& get_position() const noexcept;
+  inline Position get_position() const noexcept;
 
   inline void set_type(token_type) noexcept;
   inline void set_value(std::string_view) noexcept;
