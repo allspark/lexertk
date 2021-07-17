@@ -45,7 +45,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <deque>
+#include <vector>
 #include <exception>
 #include <limits>
 #include <map>
@@ -379,8 +379,8 @@ namespace original::lexertk
    public:
 
       typedef token token_t;
-      typedef std::deque<token_t> token_list_t;
-      typedef std::deque<token_t>::iterator token_list_itr_t;
+      typedef std::vector<token_t> token_list_t;
+      typedef std::vector<token_t>::iterator token_list_itr_t;
 
       generator()
       : base_itr_(0),
@@ -407,7 +407,11 @@ namespace original::lexertk
          s_end_    = str.data() + str.size();
 
          eof_token_.set_operator(token_t::e_eof,s_end_,s_end_,base_itr_);
-         token_list_.clear();
+         {
+           decltype(token_list_) empty;
+           empty.swap(token_list_);
+         }
+         token_list_.reserve(str.size());
 
          while (!is_end(s_itr_))
          {
