@@ -47,7 +47,7 @@ bool generator::process(std::string_view line)
   return true;
 }
 
-generator::token_list_t const& generator::get_token_list() const & noexcept
+generator::token_list_t const& generator::get_token_list() const& noexcept
 {
   return m_token_list;
 }
@@ -206,7 +206,7 @@ generator::Range generator::scan_operator(Range range) noexcept
       if ((c0 == '=') && (c1 == '='))
         return token::token_type::eq;
       if ((c0 == ':') && (c1 == '='))
-        return token::token_type::assign;
+        return token::token_type::rebind;
       if ((c0 == '<') && (c1 == '<'))
         return token::token_type::shl;
       if ((c0 == '>') && (c1 == '>'))

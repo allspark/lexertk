@@ -30,7 +30,7 @@ void token::Position::NextColumn() noexcept
 
 token::token(token_type tt, iterator begin, iterator end, Position position) noexcept
   : m_type{tt}
-  , m_value{begin, std::distance(begin, end)}
+  , m_value{begin, static_cast<std::size_t>(std::distance(begin, end))}
   , m_position{position}
 {
 }
@@ -101,7 +101,7 @@ std::string_view to_string(token::token_type t) noexcept
     case token::token_type::string:
       return "STRING";
     case token::token_type::assign:
-      return ":=";
+      return "=";
     case token::token_type::shr:
       return ">>";
     case token::token_type::shl:
@@ -150,6 +150,8 @@ std::string_view to_string(token::token_type t) noexcept
       return ":";
     case token::token_type::err_sfunc:
       return "ERROR_SFUNC";
+    case token::token_type::rebind:
+      return ":=";
   }
   return "UNKNOWN";
 }
