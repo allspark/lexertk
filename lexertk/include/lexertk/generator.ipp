@@ -172,7 +172,7 @@ generator::Range generator::scan_token(Range range) noexcept
   {
     return scan_symbol(range);
   }
-  else if (details::is_digit(*range.begin) || ('.' == *range.begin))
+  else if (details::is_digit(*range.begin) || (*range.begin == '.'))
   {
     return scan_number(range);
   }
