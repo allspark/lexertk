@@ -176,7 +176,7 @@ generator::Range generator::scan_token(Range range) noexcept
   {
     return scan_number(range);
   }
-  else if ('\'' == *range.begin)
+  else if (details::is_string_delimiter(*range.begin))
   {
     return scan_string(range);
   }
@@ -368,7 +368,7 @@ generator::Range generator::scan_string(Range range) noexcept
     }
     else if (!escaped)
     {
-      if ('\'' == *range.begin)
+      if (details::is_string_delimiter(*range.begin))
         break;
     }
     else if (escaped)
@@ -392,7 +392,9 @@ generator::Range generator::scan_string(Range range) noexcept
   //        t.set_string(parsed_string, std::distance(base_itr_, begin));
   //      }
 
-  m_token_list.emplace_back(token::token_type::string, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
+  auto string_type = escaped_found ? token::token_type::string_with_escapes : token::token_type::string;
+
+  m_token_list.emplace_back(string_type, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
   ++range;
   m_currentPosition.NextColumn();
 

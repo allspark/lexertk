@@ -152,6 +152,8 @@ std::string_view to_string(token::token_type t) noexcept
       return "ERROR_SFUNC";
     case token::token_type::rebind:
       return ":=";
+    case token::token_type::string_with_escapes:
+      return "STRING2";
   }
   return "UNKNOWN";
 }

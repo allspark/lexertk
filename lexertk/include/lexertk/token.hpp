@@ -27,6 +27,7 @@ public:
     number = 7,
     symbol = 8,
     string = 9,
+    string_with_escapes = 10,
     shr = 11,
     shl = 12,
     lte = 13,

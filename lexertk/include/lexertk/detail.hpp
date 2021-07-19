@@ -34,6 +34,11 @@ inline bool is_operator_char(const char c) noexcept
       ('|' == c) || (';' == c);
 }
 
+inline bool is_string_delimiter(const char c) noexcept
+{
+  return c == '\'' || c == '\"';
+}
+
 inline bool is_letter(const char c) noexcept
 {
   return (('a' <= c) && (c <= 'z')) || (('A' <= c) && (c <= 'Z'));
@@ -125,53 +130,47 @@ struct ilesscompare
   }
 };
 
-inline void cleanup_escapes(std::string& s)
+inline std::string cleanup_escapes(std::string_view s)
 {
-  typedef std::string::iterator str_itr_t;
+  std::string ret;
+  std::size_t removal_count{0};
 
-  str_itr_t itr1 = s.begin();
-  str_itr_t itr2 = s.begin();
-  str_itr_t end = s.end();
-
-  std::size_t removal_count = 0;
-
-  while (end != itr1)
+  for (auto it = s.begin(); it != s.end();)
   {
-    if ('\\' == (*itr1))
+    if (*it == '\\')
     {
       ++removal_count;
-
-      if (end == ++itr1)
-        break;
-      else if ('\\' != (*itr1))
+      if (++it == s.end())
       {
-        switch (*itr1)
+        break;
+      }
+      else if (*it != '\\')
+      {
+        switch (*it)
         {
           case 'n':
-            (*itr1) = '\n';
+            ret.push_back('\n');
+            ++it;
             break;
           case 'r':
-            (*itr1) = '\r';
+            ret.push_back('\r');
+            ++it;
             break;
           case 't':
-            (*itr1) = '\t';
+            ret.push_back('\t');
+            ++it;
             break;
         }
-
         continue;
       }
     }
-
-    if (itr1 != itr2)
+    else
     {
-      (*itr2) = (*itr1);
+      ret.push_back(*it++);
     }
-
-    ++itr1;
-    ++itr2;
   }
 
-  s.resize(s.size() - removal_count);
+  return ret;
 }
 }  // namespace details
 }  // namespace lexertk
