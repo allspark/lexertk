@@ -28,6 +28,11 @@ generator::Range& generator::Range::operator+=(std::size_t off) noexcept
   return *this;
 }
 
+generator::generator(Settings settings)
+  : m_settings{settings}
+{
+}
+
 bool generator::process(std::string_view line)
 {
   m_currentPosition.NextLine();
@@ -88,9 +93,9 @@ enum struct CommentIncrement
   ONE = 1,
   TWO = 2
 };
-std::tuple<CommentMode, CommentIncrement> comment_start(const char c0, const char c1) noexcept
+std::tuple<CommentMode, CommentIncrement> comment_start(const char c0, const char c1, bool hash_as_comment) noexcept
 {
-  if ('#' == c0)
+  if (hash_as_comment && '#' == c0)
   {
     return {CommentMode::COMMENT_START, CommentIncrement::ONE};
   }
@@ -124,7 +129,7 @@ generator::Range generator::skip_comments(Range range) noexcept
   if (!range || range.begin + 1 == range.end)
     return range;
 
-  auto [mode, increment] = comment_start(*range.begin, *(range.begin + 1));
+  auto [mode, increment] = comment_start(*range.begin, *(range.begin + 1), m_settings.hash_as_comment);
   if (mode == CommentMode::NONE)
   {
     return range;

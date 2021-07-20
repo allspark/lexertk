@@ -14,9 +14,6 @@ namespace lexertk
 {
 class generator
 {
-public:
-  using token_list_t = std::vector<token>;
-  using token_list_itr_t = typename token_list_t::const_iterator;
   using iterator = std::string_view::const_iterator;
   struct Range
   {
@@ -28,7 +25,17 @@ public:
     inline Range& operator+=(std::size_t off) noexcept;
   };
 
+public:
+  using token_list_t = std::vector<token>;
+  using token_list_itr_t = typename token_list_t::const_iterator;
+
+  struct Settings
+  {
+    bool hash_as_comment{true};
+  };
+
   generator() = default;
+  explicit generator(Settings settings);
   generator(generator const&) = delete;
   generator(generator&&) = delete;
   generator& operator=(generator const&) = delete;
@@ -53,6 +60,8 @@ private:
   token_list_t m_token_list;
   token::Position m_currentPosition{0, 0};
   token m_eof_token{token::token_type::eof, token::Position{}};
+
+  Settings m_settings;
 };
 inline void dump(generator::token_list_t const& list);
 }  // namespace lexertk

@@ -284,6 +284,24 @@ void example06()
   fmt::print("*********************\n");
 }
 
+void example07()
+{
+  constexpr static std::string_view expression = "#include \"lexertk.h\"";
+
+  lexertk::generator generator{{false}};
+
+  if (!generator.process(expression))
+  {
+    fmt::print("Example07 - Failed to lex: {}\n", expression);
+    return;
+  }
+  auto list = std::move(generator).get_token_list();
+
+  fmt::print("***** Example07 *****\n");
+  dump(list);
+  fmt::print("*********************\n");
+}
+
 int main()
 {
   example01();
@@ -292,6 +310,7 @@ int main()
   example04();
   example05();
   example06();
+  example07();
 
   return 0;
 }

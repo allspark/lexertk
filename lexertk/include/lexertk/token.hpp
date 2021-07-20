@@ -52,7 +52,8 @@ public:
     mul = '*',
     mod = '%',
     pow = '^',
-    colon = ':'
+    colon = ':',
+    hash = '#'
   };
 
   struct Position

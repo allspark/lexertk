@@ -154,6 +154,8 @@ std::string_view to_string(token::token_type t) noexcept
       return ":=";
     case token::token_type::string_with_escapes:
       return "STRING2";
+    case token::token_type::hash:
+      return "#";
   }
   return "UNKNOWN";
 }

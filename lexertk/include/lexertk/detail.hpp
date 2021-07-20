@@ -29,7 +29,8 @@ inline bool is_operator_char(const char c) noexcept
       '{' == c || '}' == c ||
       '%' == c || ':' == c ||
       '?' == c || '&' == c ||
-      '|' == c || ';' == c;
+      '|' == c || ';' == c ||
+      '#' == c;
 }
 
 inline bool is_string_delimiter(const char c) noexcept
