@@ -177,7 +177,7 @@ generator::Range generator::scan_token(Range range) noexcept
   {
     return scan_symbol(range);
   }
-  else if (details::is_digit(*range.begin) || (*range.begin == '.'))
+  else if (details::is_digit(*range.begin))
   {
     return scan_number(range);
   }
@@ -200,22 +200,28 @@ generator::Range generator::scan_operator(Range range) noexcept
   {
     token::token_type ttype = [](const unsigned char c0, const unsigned char c1)
     {
-      if ((c0 == '<') && (c1 == '='))
+      if (c0 == '<' && c1 == '=')
         return token::token_type::lte;
-      if ((c0 == '>') && (c1 == '='))
+      if (c0 == '>' && c1 == '=')
         return token::token_type::gte;
-      if ((c0 == '<') && (c1 == '>'))
+      if (c0 == '<' && c1 == '>')
         return token::token_type::ne;
-      if ((c0 == '!') && (c1 == '='))
+      if (c0 == '!' && c1 == '=')
         return token::token_type::ne;
-      if ((c0 == '=') && (c1 == '='))
+      if (c0 == '=' && c1 == '=')
         return token::token_type::eq;
-      if ((c0 == ':') && (c1 == '='))
+      if (c0 == ':' && c1 == '=')
         return token::token_type::rebind;
-      if ((c0 == '<') && (c1 == '<'))
+      if (c0 == '<' && c1 == '<')
         return token::token_type::shl;
-      if ((c0 == '>') && (c1 == '>'))
+      if (c0 == '>' && c1 == '>')
         return token::token_type::shr;
+      if (c0 == ':' && c1 == ':')
+        return token::token_type::scope;
+      if (c0 == '&' && c1 == '&')
+        return token::token_type::bit_and;
+      if (c0 == '|' && c1 == '|')
+        return token::token_type::bit_or;
 
       return token::token_type::none;
     }(*range.begin, *(range.begin + 1));

@@ -5,8 +5,9 @@
 #ifndef LEXERTK_DETAIL_HPP
 #define LEXERTK_DETAIL_HPP
 
-#include <cctype>
 #include <algorithm>
+#include <array>
+#include <cctype>
 
 namespace lexertk
 {
@@ -19,18 +20,15 @@ inline bool is_whitespace(const char c) noexcept
 
 inline bool is_operator_char(const char c) noexcept
 {
-  return '+' == c || '-' == c ||
-      '*' == c || '/' == c ||
-      '^' == c || '<' == c ||
-      '>' == c || '=' == c ||
-      ',' == c || '!' == c ||
-      '(' == c || ')' == c ||
-      '[' == c || ']' == c ||
-      '{' == c || '}' == c ||
-      '%' == c || ':' == c ||
-      '?' == c || '&' == c ||
-      '|' == c || ';' == c ||
-      '#' == c;
+  constexpr static std::array operatorCharacters{
+      '+', '-', '*', '/', '%', '^', '=', '!', '&', '|',
+      '<', '>',
+      '(', ')',
+      '[', ']',
+      '{', '}',
+      ',', ':', '?', ';', '#', '.'};
+
+  return std::find(operatorCharacters.cbegin(), operatorCharacters.cend(), c) != operatorCharacters.cend();
 }
 
 inline bool is_string_delimiter(const char c) noexcept
@@ -88,7 +86,8 @@ inline bool imatch(std::string_view s1, std::string_view s2) noexcept
 {
   if (s1.size() == s2.size())
   {
-    return std::equal(s1.begin(), s1.end(), s2.begin(), [](char c1, char c2) {
+    return std::equal(s1.begin(), s1.end(), s2.begin(), [](char c1, char c2)
+        {
           return imatch(c1, c2);
         });
   }
@@ -102,7 +101,8 @@ struct ilesscompare
 
   inline bool operator()(std::string_view s1, std::string_view s2) const noexcept
   {
-    return std::lexicographical_compare(s1.begin(), s1.end(), s2.begin(), s2.end(), [](char c1, char c2) {
+    return std::lexicographical_compare(s1.begin(), s1.end(), s2.begin(), s2.end(), [](char c1, char c2)
+        {
           return std::tolower(c1) < std::tolower(c2);
         });
   }

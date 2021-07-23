@@ -156,6 +156,18 @@ std::string_view to_string(token::token_type t) noexcept
       return "STRING2";
     case token::token_type::hash:
       return "#";
+    case token::token_type::increment:
+      return "++";
+    case token::token_type::decrement:
+      return "--";
+    case token::token_type::scope:
+      return "::";
+    case token::token_type::dot:
+      return ".";
+    case token::token_type::bit_and:
+      return "&&";
+    case token::token_type::bit_or:
+      return "||";
   }
   return "UNKNOWN";
 }
