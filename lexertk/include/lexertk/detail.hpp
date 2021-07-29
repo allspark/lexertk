@@ -20,15 +20,19 @@ inline bool is_whitespace(const char c) noexcept
 
 inline bool is_operator_char(const char c) noexcept
 {
-  constexpr static std::array operatorCharacters{
-      '+', '-', '*', '/', '%', '^', '=', '!', '&', '|',
-      '<', '>',
-      '(', ')',
-      '[', ']',
-      '{', '}',
-      ',', ':', '?', ';', '#', '.'};
 
-  return std::find(operatorCharacters.cbegin(), operatorCharacters.cend(), c) != operatorCharacters.cend();
+  return '+' == c || '-' == c ||
+      '*' == c || '/' == c ||
+      '^' == c || '<' == c ||
+      '>' == c || '=' == c ||
+      ',' == c || '!' == c ||
+      '(' == c || ')' == c ||
+      '[' == c || ']' == c ||
+      '{' == c || '}' == c ||
+      '%' == c || ':' == c ||
+      '?' == c || '&' == c ||
+      '|' == c || ';' == c ||
+      '#' == c || '.' == c;
 }
 
 inline bool is_string_delimiter(const char c) noexcept

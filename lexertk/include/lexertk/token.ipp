@@ -30,7 +30,7 @@ void token::Position::NextColumn() noexcept
 
 token::token(token_type tt, iterator begin, iterator end, Position position) noexcept
   : m_type{tt}
-  , m_value{begin, static_cast<std::size_t>(std::distance(begin, end))}
+  , m_value{begin, end}
   , m_position{position}
 {
 }
