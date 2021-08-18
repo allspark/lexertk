@@ -5,7 +5,7 @@
 #ifndef LEXERTK_GENERATOR_IPP
 #define LEXERTK_GENERATOR_IPP
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <tuple>
 
