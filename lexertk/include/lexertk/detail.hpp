@@ -20,7 +20,6 @@ inline bool is_whitespace(const char c) noexcept
 
 inline bool is_operator_char(const char c) noexcept
 {
-
   return '+' == c || '-' == c ||
       '*' == c || '/' == c ||
       '^' == c || '<' == c ||
@@ -32,7 +31,8 @@ inline bool is_operator_char(const char c) noexcept
       '%' == c || ':' == c ||
       '?' == c || '&' == c ||
       '|' == c || ';' == c ||
-      '#' == c || '.' == c;
+      '#' == c || '.' == c ||
+      '~' == c;
 }
 
 inline bool is_string_delimiter(const char c) noexcept
@@ -158,4 +158,4 @@ inline std::string cleanup_escapes(std::string_view s)
 }  // namespace details
 }  // namespace lexertk
 
-#endif  //LEXERTK_DETAIL_HPP
+#endif  // LEXERTK_DETAIL_HPP

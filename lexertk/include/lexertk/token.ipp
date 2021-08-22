@@ -93,7 +93,7 @@ std::string_view to_string(token::token_type t) noexcept
     case token::token_type::err_string:
       return "ERROR_STRING";
     case token::token_type::eof:
-      return "EOF";
+      return "END_OF_FILE";
     case token::token_type::number:
       return "NUMBER";
     case token::token_type::symbol:
@@ -165,9 +165,19 @@ std::string_view to_string(token::token_type t) noexcept
     case token::token_type::dot:
       return ".";
     case token::token_type::bit_and:
-      return "&&";
+      return "&";
     case token::token_type::bit_or:
+      return "|";
+    case token::token_type::logical_not:
+      return "!";
+    case token::token_type::logical_and:
+      return "&&";
+    case token::token_type::logical_or:
       return "||";
+    case token::token_type::bit_not:
+      return "~";
+    case token::token_type::eol:
+      return "END_OF_LINE";
   }
   return "UNKNOWN";
 }

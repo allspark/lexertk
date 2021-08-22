@@ -48,6 +48,7 @@ bool generator::process(std::string_view line)
       return false;
     }
   }
+  m_token_list.emplace_back(token::token_type::eol, m_currentPosition);
 
   return true;
 }
@@ -219,9 +220,9 @@ generator::Range generator::scan_operator(Range range) noexcept
       if (c0 == ':' && c1 == ':')
         return token::token_type::scope;
       if (c0 == '&' && c1 == '&')
-        return token::token_type::bit_and;
+        return token::token_type::logical_and;
       if (c0 == '|' && c1 == '|')
-        return token::token_type::bit_or;
+        return token::token_type::logical_or;
 
       return token::token_type::none;
     }(*range.begin, *(range.begin + 1));
@@ -238,18 +239,7 @@ generator::Range generator::scan_operator(Range range) noexcept
   auto end = range.begin + 1;
   auto pos = m_currentPosition.IncrementColumn(range.begin, end);
 
-  if ('<' == *range.begin)
-    m_token_list.emplace_back(token::token_type::lt, range.begin, end, pos);
-  else if ('>' == *range.begin)
-    m_token_list.emplace_back(token::token_type::gt, range.begin, end, pos);
-  else if (';' == *range.begin)
-    m_token_list.emplace_back(token::token_type::eoe, range.begin, end, pos);
-  else if ('&' == *range.begin)
-    m_token_list.emplace_back(token::token_type::symbol, range.begin, end, pos);
-  else if ('|' == *range.begin)
-    m_token_list.emplace_back(token::token_type::symbol, range.begin, end, pos);
-  else
-    m_token_list.emplace_back(static_cast<token::token_type>(*range.begin), range.begin, end, pos);
+  m_token_list.emplace_back(static_cast<token::token_type>(*range.begin), range.begin, end, pos);
 
   return ++range;
 }
