@@ -251,7 +251,25 @@ generator::Range generator::scan_symbol(Range range) noexcept
   {
     ++range;
   }
-  m_token_list.emplace_back(token::token_type::symbol, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
+
+  bool isBoolean = [](iterator begin, iterator end)
+  {
+    constexpr static std::string_view FALSEValue{"false"};
+    if (!std::equal(begin, end, FALSEValue.begin(), FALSEValue.end()))
+    {
+      constexpr static std::string_view TRUEValue{"true"};
+      return std::equal(begin, end, TRUEValue.begin(), TRUEValue.end());
+    }
+    return true;
+  }(begin, range.begin);
+  if (isBoolean)
+  {
+    m_token_list.emplace_back(token::token_type::boolean, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
+  }
+  else
+  {
+    m_token_list.emplace_back(token::token_type::symbol, begin, range.begin, m_currentPosition.IncrementColumn(begin, range.begin));
+  }
 
   return range;
 }
