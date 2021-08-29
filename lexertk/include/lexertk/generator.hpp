@@ -35,7 +35,7 @@ public:
   };
 
   generator() = default;
-  explicit generator(Settings settings);
+  inline explicit generator(Settings settings);
   generator(generator const&) = delete;
   generator(generator&&) = delete;
   generator& operator=(generator const&) = delete;
@@ -48,13 +48,13 @@ public:
   inline token_list_t get_token_list() && noexcept;
 
 private:
-  Range skip_whitespace(Range) noexcept;
-  Range skip_comments(Range) noexcept;
-  Range scan_token(Range) noexcept;
-  Range scan_operator(Range) noexcept;
-  Range scan_symbol(Range) noexcept;
-  Range scan_number(Range) noexcept;
-  Range scan_string(Range) noexcept;
+  inline Range skip_whitespace(Range) noexcept;
+  inline Range skip_comments(Range) noexcept;
+  inline Range scan_token(Range) noexcept;
+  inline Range scan_operator(Range) noexcept;
+  inline Range scan_symbol(Range) noexcept;
+  inline Range scan_number(Range) noexcept;
+  inline Range scan_string(Range) noexcept;
 
 private:
   token_list_t m_token_list;
