@@ -31,6 +31,7 @@ generator::Range& generator::Range::operator+=(std::size_t off) noexcept
 generator::generator(Settings settings)
   : m_settings{settings}
 {
+  m_currentPosition.line += m_settings.lineOffset;
 }
 
 bool generator::process(std::string_view line)

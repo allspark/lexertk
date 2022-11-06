@@ -32,6 +32,7 @@ public:
   struct Settings
   {
     bool hash_as_comment{true};
+    std::size_t lineOffset{0};
   };
 
   generator() = default;
