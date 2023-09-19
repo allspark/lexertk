@@ -5,6 +5,7 @@
 #ifndef LEXERTK_TOKEN_HPP
 #define LEXERTK_TOKEN_HPP
 
+#include <cstdint>
 #include <limits>
 #include <string_view>
 
