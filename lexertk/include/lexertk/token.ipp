@@ -178,6 +178,8 @@ std::string_view to_string(token::token_type t) noexcept
       return "~";
     case token::token_type::eol:
       return "END_OF_LINE";
+    case token::token_type::boolean:
+      return "boolean";
   }
   return "UNKNOWN";
 }
