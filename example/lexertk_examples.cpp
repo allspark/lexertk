@@ -22,6 +22,7 @@
 #include <lexertk/lexertk.hpp>
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 void example01()
 {
